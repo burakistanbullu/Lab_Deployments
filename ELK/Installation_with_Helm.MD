@@ -5,7 +5,6 @@ This document describes a structured, repeatable installation of Elasticsearch a
 ## Overview
 - Helm charts used: `elastic/elasticsearch`, `elastic/kibana`
 - Kubernetes namespace: `elastic`
-- This guide shows both inline `helm --set` installs and recommended `values.yaml` files for reproducible installs.
 - Security note: avoid embedding plaintext passwords in source files for production; use sealed secrets or Kubernetes secrets.
 
 ## Prerequisites
