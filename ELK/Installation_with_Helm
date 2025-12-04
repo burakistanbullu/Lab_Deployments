@@ -1,0 +1,51 @@
+1. Add a repo
+helm repo add elastic https://helm.elastic.co
+helm repo update
+
+2. Create a namespace
+k create ns elastic
+
+3. Install Elastic
+helm install elasticsearch elastic/elasticsearch \
+  --namespace elastic \
+  --set replicas=2 \
+  --set minimumMasterNodes=1 \
+  --set resources.requests.cpu="200m" \
+  --set resources.requests.memory="512Mi" \
+  --set resources.limits.cpu="500m" \
+  --set resources.limits.memory="1Gi" \
+  --set volumeClaimTemplate.resources.requests.storage="10Gi" \
+  --set security.enabled=true \
+  --set security.tls.enabled=true \
+  --set secret.password="MyDevPassword!" \
+  --set esJavaOpts="-Xms256m -Xmx256m" \
+  --set imageTag="8.15.5"
+
+4. To test using port-forwarding;
+kubectl port-forward svc/elasticsearch-master 9200:9200 -n elastic
+open a new terminal;
+curl --insecure -u elastic:MyDevPassword! https://localhost:9200
+
+5. Install Kibana
+
+helm install kibana elastic/kibana \
+  --namespace elastic \
+  --version 8.5.1 \
+  --set imageTag="8.5.1" \
+  --set elasticsearchHosts="https://elasticsearch-master:9200" \
+  --set elasticsearchUsername="elastic" \
+  --set elasticsearchPassword="MyDevPassword!" \
+  --set elasticsearchCertificateSecret="elasticsearch-master-certs" \
+  --set resources.requests.cpu="100m" \
+  --set resources.requests.memory="256Mi" \
+
+6. Create a nodeport service for Kibana
+ 
+ kubectl create service nodeport kibana-external \
+  --tcp=5601:5601 \
+  --node-port=30007
+
+kubectl patch service kibana-external -p '{"spec": {"selector": {"app": "kibana"}}}'
+ 
+7. To access kibana from browser ==> http://nodeip:30007--set resources.limits.cpu="300m" \
+  --set resources.limits.memory="512Mi"
